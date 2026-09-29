@@ -8,7 +8,6 @@ describe("Task API", () => {
   });
 
   describe("GET /tasks", () => {
-
     test("should return an empty array when there are no tasks", async () => {
       const response = await request(app).get("/tasks");
 
@@ -343,6 +342,78 @@ describe("Task API", () => {
     });
   });
 
+  // Tests for the task assignment API
+  describe("PATCH /tasks/:id/assign", () => {
+    test("should assign a task", async () => {
+      const task = taskService.create({
+        title: "Assign me",
+      });
+
+      const response = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({
+          assignee: "John",
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.assignee).toBe("John");
+    });
+
+    test("should return 404 for a non-existent task", async () => {
+      const response = await request(app)
+        .patch("/tasks/does-not-exist/assign")
+        .send({
+          assignee: "John",
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe("Task not found");
+    });
+
+    test("should reject a missing assignee", async () => {
+      const task = taskService.create({
+        title: "Assign me",
+      });
+
+      const response = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe(
+        "assignee is required and must be a non-empty string",
+      );
+    });
+
+    test("should reject an empty assignee", async () => {
+      const task = taskService.create({
+        title: "Assign me",
+      });
+
+      const response = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({
+          assignee: "",
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    test("should reject a whitespace-only assignee", async () => {
+      const task = taskService.create({
+        title: "Assign me",
+      });
+
+      const response = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({
+          assignee: "   ",
+        });
+
+      expect(response.status).toBe(400);
+    });
+  });
+
   describe("GET /tasks/stats", () => {
     test("should return zero statistics when there are no tasks", async () => {
       const response = await request(app).get("/tasks/stats");
@@ -405,6 +476,15 @@ describe("Task API", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.overdue).toBe(0);
+    });
+  });
+
+  describe("404 handling", () => {
+    test("should return 404 for an unknown route", async () => {
+      const response = await request(app).get("/unknown-route");
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe("Route not found");
     });
   });
 });

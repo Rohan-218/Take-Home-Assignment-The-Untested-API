@@ -346,6 +346,30 @@ describe("Task Service", () => {
     });
   });
 
+  describe("assignTask()", () => {
+    test("should assign a task to a user", () => {
+      const task = taskService.create({
+        title: "Assign me",
+      });
+
+      const updated = taskService.assignTask(
+        task.id,
+        "John"
+      );
+
+      expect(updated.assignee).toBe("John");
+    });
+
+    test("should return null for a non-existent task", () => {
+      const result = taskService.assignTask(
+        "does-not-exist",
+        "John"
+      );
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe("_reset()", () => {
     test("should remove all tasks", () => {
       taskService.create({ title: "Task 1" });
