@@ -6,7 +6,30 @@ const getAll = () => [...tasks];
 
 const findById = (id) => tasks.find((t) => t.id === id);
 
+/*
+ * Minor bug: status filtering uses includes() instead of an exact match.
+ * This can cause unexpected results for partial status values.
+ *
+ * Examples:
+ * - "do" returns both "todo" and "done".
+ * - "to" returns "todo".
+ * - "o" returns "todo", "in_progress", and "done".
+ *
+ * This is a minor edge-case issue since valid status values such as
+ * "todo", "in_progress", and "done" work as expected.
+ */
+
 const getByStatus = (status) => tasks.filter((t) => t.status.includes(status));
+
+/*
+ * Bug: pagination calculates the offset using page * limit.
+ * If page numbering starts from 1, the first page skips the first
+ * set of tasks.
+ *
+ * Example:
+ * - page = 1, limit = 10 starts from index 10 instead of index 0.
+ * - The first 10 tasks are skipped from the first page.
+ */
 
 const getPaginated = (page, limit) => {
   const offset = page * limit;
@@ -59,6 +82,12 @@ const remove = (id) => {
   tasks.splice(index, 1);
   return true;
 };
+
+/*
+ * BUG: PATCH /tasks/:id/complete changes the task priority to "medium".
+ * Expected: Only status should change to "done" and completedAt should get updated; 
+ * existing priority should remain unchanged.
+ */
 
 const completeTask = (id) => {
   const task = findById(id);
