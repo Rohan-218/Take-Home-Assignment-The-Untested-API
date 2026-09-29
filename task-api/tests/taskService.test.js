@@ -145,7 +145,7 @@ describe("Task Service", () => {
     });
 
     test("should return the requested number of tasks", () => {
-      const tasks = taskService.getPaginated(0, 2);
+      const tasks = taskService.getPaginated(1, 2);
 
       expect(tasks).toHaveLength(2);
       expect(tasks[0].title).toBe("Task 1");
@@ -153,7 +153,7 @@ describe("Task Service", () => {
     });
 
     test("should return the second page", () => {
-      const tasks = taskService.getPaginated(1, 2);
+      const tasks = taskService.getPaginated(2, 2);
 
       expect(tasks).toHaveLength(2);
       expect(tasks[0].title).toBe("Task 3");
@@ -161,7 +161,7 @@ describe("Task Service", () => {
     });
 
     test("should return remaining tasks on the last page", () => {
-      const tasks = taskService.getPaginated(2, 2);
+      const tasks = taskService.getPaginated(3, 2);
 
       expect(tasks).toHaveLength(1);
       expect(tasks[0].title).toBe("Task 5");
