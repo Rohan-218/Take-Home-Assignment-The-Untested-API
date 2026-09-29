@@ -1,9 +1,18 @@
 const express = require('express');
+require('dotenv').config();
 const taskRoutes = require('./routes/tasks');
 
 const app = express();
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "Test API",
+        status: "success"
+    });
+});
+
 app.use('/tasks', taskRoutes);
 
 app.use((err, req, res, next) => {
